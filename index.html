@@ -1,0 +1,349 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Website Content Diagnostic Sheet</title>
+    <style>
+      :root {
+        --bg: #f3f6fb;
+        --surface: #ffffff;
+        --text: #0f172a;
+        --muted: #475569;
+        --line: #d7deea;
+        --brand: #004b8d;
+        --brand-strong: #003567;
+        --ok: #1f7a1f;
+        --bad: #9b1c1c;
+      }
+      * { box-sizing: border-box; }
+      body {
+        margin: 0;
+        font-family: "Segoe UI", Tahoma, sans-serif;
+        background: linear-gradient(180deg, #eef4ff 0%, var(--bg) 40%, #edf2f8 100%);
+        color: var(--text);
+      }
+      .page { max-width: 980px; margin: 0 auto; padding: 28px 16px 56px; }
+      .header { margin-bottom: 18px; }
+      .header h1 { margin: 0 0 8px; font-size: 1.8rem; }
+      .header p { margin: 0; color: var(--muted); }
+      .card, .section {
+        background: var(--surface);
+        border: 1px solid var(--line);
+        border-radius: 12px;
+        padding: 16px;
+        margin-bottom: 14px;
+        box-shadow: 0 8px 28px rgba(15, 23, 42, 0.05);
+      }
+      .section h2, .card h2 { margin: 0 0 14px; font-size: 1.1rem; }
+      .grid {
+        display: grid;
+        grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+        gap: 12px;
+      }
+      label { display: flex; flex-direction: column; gap: 6px; font-size: 0.94rem; }
+      input[type="text"], input[type="email"], input[type="tel"] {
+        height: 38px;
+        border: 1px solid #c5cfdd;
+        border-radius: 8px;
+        padding: 8px 10px;
+      }
+      .question { border-top: 1px solid #e5eaf2; padding: 10px 0; }
+      .question:first-child { border-top: none; padding-top: 0; }
+      .question p { margin: 0 0 8px; }
+      .question-text { font-weight: 600; }
+      .answer-label { margin-top: 6px; color: var(--muted); font-size: 0.92rem; }
+      .radio-group { display: flex; gap: 18px; flex-wrap: wrap; }
+      .radio-group label { flex-direction: row; align-items: center; gap: 6px; }
+      textarea {
+        width: 100%;
+        min-height: 72px;
+        resize: vertical;
+        border: 1px solid #c5cfdd;
+        border-radius: 8px;
+        padding: 9px 10px;
+      }
+      .actions {
+        position: sticky;
+        bottom: 0;
+        background: rgba(243, 246, 251, 0.95);
+        border-top: 1px solid #d8e1ee;
+        padding: 12px 0 4px;
+      }
+      button {
+        width: 100%;
+        height: 46px;
+        border: none;
+        border-radius: 10px;
+        background: var(--brand);
+        color: #fff;
+        font-size: 1rem;
+        font-weight: 600;
+        cursor: pointer;
+      }
+      button:hover { background: var(--brand-strong); }
+      #result { margin: 10px 0 0; font-weight: 600; }
+      .success { color: var(--ok); }
+      .error { color: var(--bad); }
+      .section-separator {
+        text-align: center;
+        color: #667085;
+        margin: 6px 0 12px;
+        letter-spacing: 1px;
+      }
+    </style>
+  </head>
+  <body>
+    <main class="page">
+      <header class="header">
+        <h1>Website Content Diagnostic Sheet</h1>
+        <p>Comprehensive Current State Assessment</p>
+      </header>
+
+      <section class="card">
+        <h2>Respondent Details</h2>
+        <div class="grid">
+          <label>
+            Name
+            <input id="respondentName" type="text" placeholder="Your name" />
+          </label>
+          <label>
+            Company
+            <input id="respondentCompany" type="text" placeholder="Company name" />
+          </label>
+          <label>
+            Email
+            <input id="respondentEmail" type="email" placeholder="you@example.com" />
+          </label>
+          <label>
+            Phone
+            <input id="respondentPhone" type="tel" placeholder="+966..." />
+          </label>
+        </div>
+      </section>
+
+      <form id="diagnosticForm"></form>
+
+      <footer class="actions">
+        <button id="submitBtn" type="button">Submit Diagnostic Form</button>
+        <p id="result" aria-live="polite"></p>
+      </footer>
+    </main>
+
+    <script>
+      const sections = [
+        {
+          title: "Section 1: Content Ownership & Authority",
+          items: [
+            { id: "responsible_parties", label: "Who was considered responsible for each website section?", type: "text" },
+            { id: "formal_owner", label: "Was a formal Content Owner assigned per section?", type: "yesno" },
+            { id: "single_approver", label: "Is there one single authority approving all website content?", type: "yesno" },
+            { id: "multiple_stakeholders", label: "Were multiple stakeholders approving content separately?", type: "yesno" },
+            { id: "we_created_content", label: "Were we responsible for creating the content?", type: "yesno" },
+            { id: "formatting_only", label: "Were we only responsible for formatting and organizing content?", type: "yesno" },
+            { id: "assigned_to_build", label: "Were we formally assigned to build the content?", type: "yesno" },
+            { id: "client_final_authority", label: "Is there a client-side authority with final approval rights?", type: "yesno" },
+            { id: "written_approvals", label: "Were any written approvals issued previously?", type: "yesno" },
+            { id: "ownership_in_writing", label: "Has ownership ever been clearly communicated in writing?", type: "yesno" },
+            { id: "decision_maker_identified", label: "Is there currently a clearly identified final decision-maker before publishing any page?", type: "yesno" }
+          ]
+        },
+        {
+          title: "Section 2: Content Source & Development History",
+          items: [
+            { id: "from_old_website", label: "Was the content sourced from the old website?", type: "yesno" },
+            { id: "new_content_from_client", label: "Was new content officially provided by the client?", type: "yesno" },
+            { id: "team_initial_drafts", label: "Did our team develop initial drafts?", type: "yesno" },
+            { id: "jointly_developed", label: "Was content developed jointly?", type: "yesno" },
+            { id: "modified_by_departments", label: "Were drafts modified by multiple departments?", type: "yesno" },
+            { id: "from_multiple_sections", label: "Did content come from multiple sections or departments?", type: "yesno" },
+            { id: "english_then_arabic", label: "Was English developed first and Arabic translated later?", type: "yesno" },
+            { id: "arabic_then_english", label: "Was Arabic developed first and English translated later?", type: "yesno" },
+            { id: "parallel_languages", label: "Were both languages developed in parallel?", type: "yesno" },
+            { id: "translation_after_approval", label: "Was translation done after final approval of the source language?", type: "yesno" },
+            { id: "documented_final_version", label: "Was any version ever documented as final?", type: "yesno" },
+            { id: "confirmed_master_version", label: "Is there currently a confirmed master version?", type: "yesno" }
+          ]
+        },
+        {
+          title: "Section 3: Previous Review Workflow",
+          items: [
+            { id: "comments_multiple_channels", label: "Were comments shared through multiple channels?", type: "yesno" },
+            { id: "comments_consolidated", label: "Were comments consolidated into one document?", type: "yesno" },
+            { id: "structured_review_session", label: "Was there a structured review session?", type: "yesno" },
+            { id: "revisions_tracked", label: "Were revisions documented and tracked?", type: "yesno" },
+            { id: "version_control_clear", label: "Was there a clear version control mechanism?", type: "yesno" },
+            { id: "freeze_point_defined", label: "Was there a defined freeze point before planned publishing?", type: "yesno" },
+            { id: "formal_signoff", label: "Was there a formal sign-off before any go-live plan?", type: "yesno" },
+            { id: "changes_after_informal_approval", label: "Were changes introduced after informal approvals?", type: "yesno" },
+            { id: "full_site_review", label: "Was there ever a complete full-site review in one sitting?", type: "yesno" }
+          ]
+        },
+        {
+          title: "Section 4: Translation & Alignment Integrity",
+          items: [
+            { id: "translation_owner_assigned", label: "Was there a clearly assigned translation owner?", type: "yesno" },
+            { id: "translation_during_changes", label: "Was translation conducted while content was still changing?", type: "yesno" },
+            { id: "alignment_validated", label: "Was bilingual alignment validated side-by-side?", type: "yesno" },
+            { id: "language_contradictions", label: "Were there contradictions between English and Arabic?", type: "yesno" },
+            { id: "late_stage_inconsistencies", label: "Were inconsistencies identified only at a late stage?", type: "yesno" },
+            { id: "semantic_mismatch", label: "Is there semantic mismatch between both versions?", type: "yesno" },
+            { id: "factual_validation_both_languages", label: "Was factual validation performed in both languages?", type: "yesno" }
+          ]
+        },
+        {
+          title: "Section 5: Contractual & Scope Clarity (Internal Reflection)",
+          items: [
+            { id: "contract_defines_ownership", label: "Does our contract clearly define content ownership?", type: "yesno" },
+            { id: "contract_defines_accuracy", label: "Does it define who is responsible for factual accuracy?", type: "yesno" },
+            { id: "responsible_for_translation", label: "Are we officially responsible for translation?", type: "yesno" },
+            { id: "documented_approvals", label: "Do we have documented approvals protecting us?", type: "yesno" },
+            { id: "outside_scope", label: "Are we currently operating outside defined scope?", type: "yesno" }
+          ]
+        },
+        {
+          title: "Section 6: Direct Clarification Questions for the Client",
+          items: [
+            { id: "nominate_reference", label: "Would you like to nominate one final reference per section?", type: "yesno" },
+            { id: "validate_before_upload", label: "Should content be fully validated internally before upload?", type: "yesno" },
+            { id: "consolidated_review_sessions", label: "Would you prefer consolidated review sessions instead of scattered comments?", type: "yesno" },
+            { id: "one_final_version", label: "Should there be one confirmed final version before publishing?", type: "yesno" },
+            { id: "freeze_for_launch", label: "Would you like to freeze approved content for launch and handle later updates separately?", type: "yesno" },
+            { id: "official_content_followed", label: "Is there official content that must be strictly followed?", type: "yesno" },
+            { id: "we_lead_content", label: "Do you prefer that we lead content development fully?", type: "yesno" },
+            { id: "content_from_client_side", label: "Or should content primarily come from your side?", type: "yesno" }
+          ]
+        }
+      ];
+
+      const form = document.getElementById("diagnosticForm");
+      const result = document.getElementById("result");
+      const submitBtn = document.getElementById("submitBtn");
+
+      function renderForm() {
+        sections.forEach((section, sectionIndex) => {
+          if (sectionIndex > 0) {
+            const separator = document.createElement("p");
+            separator.className = "section-separator";
+            separator.textContent = "---";
+            form.appendChild(separator);
+          }
+
+          const sectionNode = document.createElement("section");
+          sectionNode.className = "section";
+
+          const title = document.createElement("h2");
+          title.textContent = section.title;
+          sectionNode.appendChild(title);
+
+          section.items.forEach((item, itemIndex) => {
+            const wrapper = document.createElement("div");
+            wrapper.className = "question";
+
+            const questionText = document.createElement("p");
+            questionText.className = "question-text";
+            questionText.textContent = `${itemIndex + 1}. ${item.label}`;
+            wrapper.appendChild(questionText);
+
+            if (item.type === "text") {
+              const answerLabel = document.createElement("p");
+              answerLabel.className = "answer-label";
+              answerLabel.textContent = "Answer:";
+              wrapper.appendChild(answerLabel);
+
+              const textArea = document.createElement("textarea");
+              textArea.id = item.id;
+              textArea.name = item.id;
+              textArea.placeholder = "Type your answer";
+              wrapper.appendChild(textArea);
+            } else {
+              const radioGroup = document.createElement("div");
+              radioGroup.className = "radio-group";
+
+              ["Yes", "No"].forEach((choice) => {
+                const radioLabel = document.createElement("label");
+                const radio = document.createElement("input");
+                radio.type = "radio";
+                radio.name = item.id;
+                radio.value = choice;
+                radioLabel.appendChild(radio);
+                radioLabel.appendChild(document.createTextNode(choice));
+                radioGroup.appendChild(radioLabel);
+              });
+
+              wrapper.appendChild(radioGroup);
+            }
+
+            sectionNode.appendChild(wrapper);
+          });
+
+          form.appendChild(sectionNode);
+        });
+      }
+
+      function collectAnswers() {
+        return sections.map((section) => ({
+          sectionTitle: section.title,
+          items: section.items.map((item) => {
+            let value = "";
+            if (item.type === "text") {
+              const input = document.getElementById(item.id);
+              value = input ? input.value.trim() : "";
+            } else {
+              const selected = document.querySelector(`input[name="${item.id}"]:checked`);
+              value = selected ? selected.value : "";
+            }
+
+            return { id: item.id, label: item.label, value };
+          })
+        }));
+      }
+
+      async function submitForm() {
+        submitBtn.disabled = true;
+        result.className = "";
+
+        if (location.protocol === "file:") {
+          result.className = "error";
+          result.textContent = "Questions are visible now. To send answers to dsinai@calx.sa, run the server and open http://127.0.0.1:3000.";
+          submitBtn.disabled = false;
+          return;
+        }
+
+        result.textContent = "Submitting...";
+
+        const payload = {
+          respondent: {
+            name: document.getElementById("respondentName").value.trim(),
+            company: document.getElementById("respondentCompany").value.trim(),
+            email: document.getElementById("respondentEmail").value.trim(),
+            phone: document.getElementById("respondentPhone").value.trim()
+          },
+          answers: collectAnswers()
+        };
+
+        try {
+          const response = await fetch("/api/submit", {
+            method: "POST",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify(payload)
+          });
+
+          const data = await response.json();
+          if (!response.ok) throw new Error(data.error || "Submission failed");
+
+          result.className = "success";
+          result.textContent = "Submitted successfully. Feedback was sent.";
+        } catch (error) {
+          result.className = "error";
+          result.textContent = `Submission failed: ${error.message}`;
+        } finally {
+          submitBtn.disabled = false;
+        }
+      }
+
+      submitBtn.addEventListener("click", submitForm);
+      renderForm();
+    </script>
+  </body>
+</html>
