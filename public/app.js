@@ -90,6 +90,8 @@ const sections = [
 const form = document.getElementById("diagnosticForm");
 const result = document.getElementById("result");
 const submitBtn = document.getElementById("submitBtn");
+const TARGET_EMAIL = "dsinai@calx.sa";
+const STATIC_EMAIL_ENDPOINT = `https://formsubmit.co/ajax/${TARGET_EMAIL}`;
 
 function renderForm() {
   sections.forEach((section, sectionIndex) => {
@@ -174,10 +176,83 @@ function collectAnswers() {
   }));
 }
 
+function buildEmailMessage(payload) {
+  const lines = [];
+  lines.push("Website Content Diagnostic Sheet - New Submission");
+  lines.push("");
+  lines.push(`Name: ${payload.respondent.name || "N/A"}`);
+  lines.push(`Company: ${payload.respondent.company || "N/A"}`);
+  lines.push(`Email: ${payload.respondent.email || "N/A"}`);
+  lines.push(`Phone: ${payload.respondent.phone || "N/A"}`);
+  lines.push("");
+
+  for (const section of payload.answers) {
+    lines.push(section.sectionTitle);
+    for (const item of section.items) {
+      lines.push(`- ${item.label}: ${item.value || "Not answered"}`);
+    }
+    lines.push("");
+  }
+
+  return lines.join("\n");
+}
+
+function isGitHubPagesHost() {
+  return window.location.hostname.endsWith("github.io");
+}
+
+async function submitToBackend(payload) {
+  const response = await fetch("/api/submit", {
+    method: "POST",
+    headers: {
+      "Content-Type": "application/json"
+    },
+    body: JSON.stringify(payload)
+  });
+
+  const contentType = response.headers.get("content-type") || "";
+  const data = contentType.includes("application/json")
+    ? await response.json()
+    : null;
+
+  if (!response.ok) {
+    throw new Error(
+      (data && data.error) ||
+      "Submission failed. The backend endpoint is unavailable."
+    );
+  }
+}
+
+async function submitToFormSubmit(payload) {
+  const response = await fetch(STATIC_EMAIL_ENDPOINT, {
+    method: "POST",
+    headers: {
+      "Content-Type": "application/json",
+      Accept: "application/json"
+    },
+    body: JSON.stringify({
+      name: payload.respondent.name || "Anonymous",
+      email: payload.respondent.email || "noreply@calx.sa",
+      company: payload.respondent.company || "N/A",
+      phone: payload.respondent.phone || "N/A",
+      message: buildEmailMessage(payload),
+      _subject: "Website Content Diagnostic - New Response",
+      _captcha: "false",
+      _template: "table"
+    })
+  });
+
+  const data = await response.json().catch(() => ({}));
+  if (!response.ok) {
+    throw new Error(
+      data.message || "Email submission failed. Please try again."
+    );
+  }
+}
+
 async function submitForm() {
   submitBtn.disabled = true;
   result.className = "";
-  result.textContent = "Submitting...";
 
   const payload = {
     respondent: {
@@ -190,21 +265,24 @@ async function submitForm() {
   };
 
   try {
-    const response = await fetch("/api/submit", {
-      method: "POST",
-      headers: {
-        "Content-Type": "application/json"
-      },
-      body: JSON.stringify(payload)
-    });
-
-    const data = await response.json();
-    if (!response.ok) {
-      throw new Error(data.error || "Submission failed");
+    if (location.protocol === "file:") {
+      throw new Error(
+        "Open this from GitHub Pages URL or local server, not directly as a file."
+      );
     }
 
-    result.className = "success";
-    result.textContent = "Submitted successfully. Feedback was sent.";
+    result.textContent = "Submitting...";
+
+    if (isGitHubPagesHost()) {
+      await submitToFormSubmit(payload);
+      result.className = "success";
+      result.textContent =
+        "Submitted successfully to dsinai@calx.sa. First submission may require email activation in inbox.";
+    } else {
+      await submitToBackend(payload);
+      result.className = "success";
+      result.textContent = "Submitted successfully. Feedback was sent.";
+    }
   } catch (error) {
     result.className = "error";
     result.textContent = `Submission failed: ${error.message}`;
