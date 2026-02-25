@@ -1,0 +1,169 @@
+:root {
+  --bg: #f3f6fb;
+  --surface: #ffffff;
+  --text: #0f172a;
+  --muted: #475569;
+  --line: #d7deea;
+  --brand: #004b8d;
+  --brand-strong: #003567;
+  --ok: #1f7a1f;
+  --bad: #9b1c1c;
+}
+
+* {
+  box-sizing: border-box;
+}
+
+body {
+  margin: 0;
+  font-family: "Segoe UI", Tahoma, sans-serif;
+  background: linear-gradient(180deg, #eef4ff 0%, var(--bg) 40%, #edf2f8 100%);
+  color: var(--text);
+}
+
+.page {
+  max-width: 980px;
+  margin: 0 auto;
+  padding: 28px 16px 56px;
+}
+
+.header {
+  margin-bottom: 18px;
+}
+
+.header h1 {
+  margin: 0 0 8px;
+  font-size: 1.8rem;
+}
+
+.header p {
+  margin: 0;
+  color: var(--muted);
+}
+
+.card,
+.section {
+  background: var(--surface);
+  border: 1px solid var(--line);
+  border-radius: 12px;
+  padding: 16px;
+  margin-bottom: 14px;
+  box-shadow: 0 8px 28px rgba(15, 23, 42, 0.05);
+}
+
+.section h2,
+.card h2 {
+  margin: 0 0 14px;
+  font-size: 1.1rem;
+}
+
+.grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+  gap: 12px;
+}
+
+label {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  font-size: 0.94rem;
+}
+
+input[type="text"],
+input[type="email"],
+input[type="tel"] {
+  height: 38px;
+  border: 1px solid #c5cfdd;
+  border-radius: 8px;
+  padding: 8px 10px;
+}
+
+.question {
+  border-top: 1px solid #e5eaf2;
+  padding: 10px 0;
+}
+
+.question:first-child {
+  border-top: none;
+  padding-top: 0;
+}
+
+.question p {
+  margin: 0 0 8px;
+}
+
+.question-text {
+  font-weight: 600;
+}
+
+.answer-label {
+  margin-top: 6px;
+  color: var(--muted);
+  font-size: 0.92rem;
+}
+
+.radio-group {
+  display: flex;
+  gap: 18px;
+  flex-wrap: wrap;
+}
+
+.radio-group label {
+  flex-direction: row;
+  align-items: center;
+  gap: 6px;
+}
+
+textarea {
+  width: 100%;
+  min-height: 72px;
+  resize: vertical;
+  border: 1px solid #c5cfdd;
+  border-radius: 8px;
+  padding: 9px 10px;
+}
+
+.actions {
+  position: sticky;
+  bottom: 0;
+  background: rgba(243, 246, 251, 0.95);
+  border-top: 1px solid #d8e1ee;
+  padding: 12px 0 4px;
+}
+
+button {
+  width: 100%;
+  height: 46px;
+  border: none;
+  border-radius: 10px;
+  background: var(--brand);
+  color: #fff;
+  font-size: 1rem;
+  font-weight: 600;
+  cursor: pointer;
+}
+
+button:hover {
+  background: var(--brand-strong);
+}
+
+#result {
+  margin: 10px 0 0;
+  font-weight: 600;
+}
+
+.success {
+  color: var(--ok);
+}
+
+.error {
+  color: var(--bad);
+}
+
+.section-separator {
+  text-align: center;
+  color: #667085;
+  margin: 6px 0 12px;
+  letter-spacing: 1px;
+}
