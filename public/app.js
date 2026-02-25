@@ -92,6 +92,7 @@ const result = document.getElementById("result");
 const submitBtn = document.getElementById("submitBtn");
 const TARGET_EMAIL = "dsinai@calx.sa";
 const STATIC_EMAIL_ENDPOINT = `https://formsubmit.co/ajax/${TARGET_EMAIL}`;
+const HIDDEN_SENDER_EMAIL = "noreply@calx.sa";
 
 function renderForm() {
   sections.forEach((section, sectionIndex) => {
@@ -181,8 +182,6 @@ function buildEmailMessage(payload) {
   lines.push("Website Content Diagnostic Sheet - New Submission");
   lines.push("");
   lines.push(`Name: ${payload.respondent.name || "N/A"}`);
-  lines.push(`Company: ${payload.respondent.company || "N/A"}`);
-  lines.push(`Email: ${payload.respondent.email || "N/A"}`);
   lines.push(`Phone: ${payload.respondent.phone || "N/A"}`);
   lines.push("");
 
@@ -254,12 +253,15 @@ async function submitForm() {
   submitBtn.disabled = true;
   result.className = "";
 
+  const nameInput = document.getElementById("respondentName");
+  const phoneInput = document.getElementById("respondentPhone");
+
   const payload = {
     respondent: {
-      name: document.getElementById("respondentName").value.trim(),
-      company: document.getElementById("respondentCompany").value.trim(),
-      email: document.getElementById("respondentEmail").value.trim(),
-      phone: document.getElementById("respondentPhone").value.trim()
+      name: nameInput ? nameInput.value.trim() : "",
+      phone: phoneInput ? phoneInput.value.trim() : "",
+      company: "N/A",
+      email: HIDDEN_SENDER_EMAIL
     },
     answers: collectAnswers()
   };
